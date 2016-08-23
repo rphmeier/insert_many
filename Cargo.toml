@@ -1,6 +1,6 @@
 [package]
 name = "insert_many"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Robert Habermeier <rphmeier@gmail.com>"]
 description = "insert_many optimization for vec-like structures"
 license = "MIT"

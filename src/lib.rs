@@ -2,11 +2,13 @@
 //! Like `Vec::insert`, but inserts a series of items at an index rather than a single one.
 //! This can lead to significant speedup where multiple items need to be inserted.
 
-#[cfg(features = "smallvec")]
+#[cfg(feature = "smallvec")]
 extern crate smallvec;
 
 use std::iter::ExactSizeIterator;
 use std::ptr;
+
+use smallvec::SmallVec;
 
 /// Generalized trait for inserting many items at once.
 pub trait InsertMany<T> {
@@ -52,7 +54,7 @@ impl<T> InsertMany<T> for Vec<T> {
     }
 }
 
-#[cfg(features = "smallvec")]
+#[cfg(feature = "smallvec")]
 impl<A: smallvec::Array> InsertMany<A::Item> for SmallVec<A> {
     fn insert_many<I>(&mut self, index: usize, iterable: I) where I: IntoIterator<Item=A::Item>, I::IntoIter: ExactSizeIterator {
         impl_veclike!(self, index, iterable);
