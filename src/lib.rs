@@ -11,6 +11,9 @@ use std::ptr;
 /// Generalized trait for inserting many items at once.
 pub trait InsertMany<T> {
     /// Insert all the items in the given iterable at `index`, shifting all elements after it to the right.
+    ///
+    /// # Panics
+    /// This may panic if the `ExactSizeIterator` implementation is faulty.
     fn insert_many<I>(&mut self, index: usize, iterable: I) where I: IntoIterator<Item=T>, I::IntoIter: ExactSizeIterator;
 }
 
@@ -23,7 +26,7 @@ macro_rules! impl_veclike {
 
         let index = $index as isize;
 
-        let iter = $iterable.into_iter();
+        let mut iter = $iterable.into_iter();
         let num_items = iter.len();
 
         if num_items == 0 { return; }
@@ -32,8 +35,9 @@ macro_rules! impl_veclike {
         unsafe {
             let start_ptr = $s.as_mut_ptr().offset(index);
             ptr::copy(start_ptr, start_ptr.offset(num_items as isize), len - index as usize);
-            for (i, item) in iter.enumerate() {
-                assert!(i < num_items, "Faulty ExactSizeIterator implementation.");
+
+            for i in 0..num_items {
+                let item = iter.next().expect("ExactSizeIterator produced too few items.");
                 ptr::write(start_ptr.offset(i as isize), item);
             }
 
